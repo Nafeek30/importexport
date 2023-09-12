@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "986857521296",
+    "project_id": "importexport-95eae",
+    "storage_bucket": "importexport-95eae.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:986857521296:android:b2d653dd9a8cba52e39815",
+        "android_client_info": {
+          "package_name": "com.example.importexport"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJ8zm1E-JfgJS3tE4gZ35jbmeWr6USu5o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
