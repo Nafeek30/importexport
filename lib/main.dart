@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:importexport/views/LoginScreen.dart';
-import 'package:importexport/views/UserSignupScreen.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -23,7 +22,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: UserSignUpScreen(),
+      home: LoginScreen(),
     );
   }
 }
