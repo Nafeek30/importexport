@@ -135,12 +135,32 @@ class LoginScreenState extends State<LoginScreen> {
             .signInWithEmailAndPassword(
                 email: emailController.text, password: passwordController.text)
             .then((value) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => OrderScreen(),
-            ),
-          );
+          FirebaseFirestore.instance
+              .collection('users')
+              .where('email', isEqualTo: emailController.text)
+              .limit(1)
+              .snapshots()
+              .first
+              .then((snap) {
+            if (snap.docs[0].data()['approved'] == 'true' &&
+                !snap.docs[0].data()['banned']) {
+              // if approved and not banned then show order screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => OrderScreen(),
+                ),
+              );
+            } else {
+              // otherwise move to pending screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PendingAuthScreen(),
+                ),
+              );
+            }
+          });
         });
       } catch (error) {
         Fluttertoast.showToast(

@@ -146,7 +146,9 @@ class WorkspaceSignUpScreenState extends State<WorkspaceSignUpScreen> {
             'email': emailController.text,
             'phoneNumber': phoneNumberController.text,
             'code': 'ABCD',
-            'approved': true,
+            'approved': 'true',
+            'banned': false,
+            'writePermission': true,
           };
           FirebaseFirestore.instance
               .collection('workspace')

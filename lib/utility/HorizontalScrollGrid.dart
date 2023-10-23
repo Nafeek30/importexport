@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:importexport/views/BuyerScreen.dart';
 import 'package:importexport/views/SellerScreen.dart';
@@ -6,23 +8,25 @@ class HorizontalScrollGrid extends StatefulWidget {
   final String? buyerName;
   final String? sellerName;
   final TextEditingController searchController;
-  final String? filterPrice;
+  final String? filterStatus;
 
   HorizontalScrollGrid(
-      this.searchController, this.filterPrice, this.buyerName, this.sellerName,
+      this.searchController, this.filterStatus, this.buyerName, this.sellerName,
       {super.key});
 
   @override
-  _HorizontalScrollGridState createState() => _HorizontalScrollGridState();
+  HorizontalScrollGridState createState() => HorizontalScrollGridState();
 }
 
-class _HorizontalScrollGridState extends State<HorizontalScrollGrid> {
+class HorizontalScrollGridState extends State<HorizontalScrollGrid> {
   late List<Map<String, dynamic>> items;
   late List<bool> selectedRows;
+  bool showEdit = false;
 
   @override
   void initState() {
     super.initState();
+    getUserPermission();
     items = List.generate(15, (index) {
       return {
         'Index': '${index + 1}',
@@ -49,9 +53,9 @@ class _HorizontalScrollGridState extends State<HorizontalScrollGrid> {
         'Received Date': '${DateTime.now()}',
         'Commission Note': 'EFG',
         'Comments': 'Some Comment',
+        'Status': index / 2 == 0 ? 'PAID' : 'UNPAID'
       };
     });
-
     selectedRows = List.generate(items.length, (index) => false);
   }
 
@@ -64,9 +68,9 @@ class _HorizontalScrollGridState extends State<HorizontalScrollGrid> {
               .contains(widget.searchController.text.toLowerCase())) {
         return false;
       }
-      if (widget.filterPrice == "< \$50" && item['Unit Price']! >= 50) {
+      if (widget.filterStatus == "PAID" && item['Status']! == 'UNPAID') {
         return false;
-      } else if (widget.filterPrice == ">= \$50" && item['Unit Price']! < 50) {
+      } else if (widget.filterStatus == "UNPAID" && item['Status']! == 'PAID') {
         return false;
       }
       return true;
@@ -104,6 +108,7 @@ class _HorizontalScrollGridState extends State<HorizontalScrollGrid> {
             _customDataColumn('Received Date'),
             _customDataColumn('Commission Note'),
             _customDataColumn('Comments'),
+            _customDataColumn('Status'),
           ],
           rows: filteredItems.map((item) {
             int index = items.indexOf(item);
@@ -123,12 +128,14 @@ class _HorizontalScrollGridState extends State<HorizontalScrollGrid> {
                     activeColor: Colors.teal,
                   ),
                 ),
-                _customDataCellWithWidget(
-                  IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.teal),
-                    onPressed: () {},
-                  ),
-                ),
+                showEdit
+                    ? _customDataCellWithWidget(
+                        IconButton(
+                          icon: const Icon(Icons.edit, color: Colors.teal),
+                          onPressed: () {},
+                        ),
+                      )
+                    : _customDataCellWithWidget(Container()),
                 _customDataCell(item['Index'], false, false),
                 _customDataCell(item['Buyer name'], true, false),
                 _customDataCell(item['Products'], false, false),
@@ -152,6 +159,7 @@ class _HorizontalScrollGridState extends State<HorizontalScrollGrid> {
                 _customDataCell(item['Received Date'], false, false),
                 _customDataCell(item['Commission Note'], false, false),
                 _customDataCell(item['Comments'], false, false),
+                _customDataCell(item['Status'], false, false),
               ],
             );
           }).toList(),
@@ -230,5 +238,18 @@ class _HorizontalScrollGridState extends State<HorizontalScrollGrid> {
         child: widget,
       ),
     );
+  }
+
+  Future<void> getUserPermission() async {
+    FirebaseFirestore.instance
+        .collection('users')
+        .where('email', isEqualTo: FirebaseAuth.instance.currentUser!.email)
+        .snapshots()
+        .first
+        .then((snap) {
+      setState(() {
+        showEdit = snap.docs[0].data()['writePermission'];
+      });
+    });
   }
 }

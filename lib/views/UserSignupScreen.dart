@@ -165,7 +165,9 @@ class UserSignUpScreenState extends State<UserSignUpScreen> {
             'email': emailController.text,
             'phoneNumber': phoneNumberController.text,
             'code': workspaceCodeController.text,
-            'approved': false,
+            'approved': 'false',
+            'banned': false,
+            'writePermission': false,
           };
           FirebaseFirestore.instance
               .collection('users')
