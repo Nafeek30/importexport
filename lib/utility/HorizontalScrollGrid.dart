@@ -1,10 +1,24 @@
-import 'dart:js_interop';
+import 'dart:convert';
+import 'dart:html' as html;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:importexport/views/BuyerScreen.dart';
+import 'package:importexport/views/CreateInvoiceScreen.dart';
 import 'package:importexport/views/SellerScreen.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+
+class CustomRow {
+  final String itemName;
+  final String itemPrice;
+  final String amount;
+  final String total;
+
+  CustomRow(this.itemName, this.itemPrice, this.amount, this.total);
+}
 
 class HorizontalScrollGrid extends StatefulWidget {
   final String? buyerName;
@@ -21,8 +35,10 @@ class HorizontalScrollGrid extends StatefulWidget {
 }
 
 class HorizontalScrollGridState extends State<HorizontalScrollGrid> {
-  late List<Map<String, dynamic>> items;
+  late List<Map<String, dynamic>> items = [];
+  late List<Map<String, dynamic>> filteredItems;
   late List<bool> selectedRows;
+  List selectedOrders = [];
   bool showEdit = false;
   late List stream;
   bool doneLoading = false;
@@ -31,8 +47,15 @@ class HorizontalScrollGridState extends State<HorizontalScrollGrid> {
   @override
   void initState() {
     super.initState();
-    fetchData();
-    getUserPermission();
+    selectedOrders.clear();
+    fetchData().then((value) {
+      getUserPermission().then((value) {
+        setState(() {
+          doneLoading = true;
+        });
+      });
+    });
+    // getUserPermission();
   }
 
   @override
@@ -55,109 +78,142 @@ class HorizontalScrollGridState extends State<HorizontalScrollGrid> {
     return doneLoading
         ? SingleChildScrollView(
             scrollDirection: Axis.vertical,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                headingRowColor: MaterialStateColor.resolveWith(
-                    (states) => Colors.teal.shade50),
-                dividerThickness: 1,
-                columns: [
-                  _customDataColumn('Select'),
-                  _customDataColumn('Edit'),
-                  _customDataColumn('Change Log'),
-                  _customDataColumn('Index'),
-                  _customDataColumn('Status'),
-                  _customDataColumn('Buyer name'),
-                  _customDataColumn('Products'),
-                  _customDataColumn('Unit Price'),
-                  _customDataColumn('Quantity'),
-                  _customDataColumn('Invoice Number'),
-                  _customDataColumn('Invoice Date'),
-                  _customDataColumn('Terms of Payment'),
-                  _customDataColumn('Supplier name'),
-                  _customDataColumn('Letter of Credit Number'),
-                  _customDataColumn('Letter of Credit Date'),
-                  _customDataColumn('LC Value'),
-                  _customDataColumn('Amount for Commission'),
-                  _customDataColumn('Commission %'),
-                  _customDataColumn('Total Commission'),
-                  _customDataColumn('Other Amount'),
-                  _customDataColumn('Total Amount to be Received'),
-                  _customDataColumn('Received Amount'),
-                  _customDataColumn('Received Date'),
-                  _customDataColumn('Commission Note'),
-                  _customDataColumn('Comments'),
-                ],
-                rows: filteredItems.map((item) {
-                  int index = items.indexOf(item);
-                  return DataRow(
-                    selected: selectedRows[index],
-                    color: MaterialStateColor.resolveWith(
-                        (states) => Colors.grey.shade100),
-                    cells: [
-                      _customDataCellWithWidget(
-                        Checkbox(
-                          value: selectedRows[index],
-                          onChanged: (bool? value) {
-                            setState(() {
-                              selectedRows[index] = value!;
-                            });
-                          },
-                          activeColor: Colors.teal,
-                        ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        initiateInvoice();
+                      },
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(Colors.teal),
                       ),
-                      showEdit
-                          ? _customDataCellWithWidget(
-                              IconButton(
-                                icon:
-                                    const Icon(Icons.edit, color: Colors.teal),
-                                onPressed: () => showAddEditDialog(item),
-                              ),
-                            )
-                          : _customDataCellWithWidget(Container()),
-                      _customDataCellWithWidget(
-                        IconButton(
-                          icon: Icon(Icons.description,
-                              color: Colors.blueAccent.shade100),
-                          onPressed: () => showChangeLogDialog(item),
-                        ),
-                      ),
-                      _customDataCell(item['Index'], false, false),
-                      _customDataCell(item['Status'], false, false),
-                      _customDataCell(item['Buyer name'], true, false),
-                      _customDataCell(item['Products'], false, false),
-                      _customDataCell('\$${item['Unit Price']}', false, false),
-                      _customDataCell('${item['Quantity']}', false, false),
-                      _customDataCell(
-                          '${item['Invoice Number']}', false, false),
-                      _customDataCell('${item['Invoice Date']}', false, false),
-                      _customDataCell(item['Terms of Payment'], false, false),
-                      _customDataCell(item['Supplier name'], false, true),
-                      _customDataCell(
-                          '${item['Letter of Credit Number']}', false, false),
-                      _customDataCell(
-                          '${item['Letter of Credit Date']}', false, false),
-                      _customDataCell('${item['LC Value']}', false, false),
-                      _customDataCell(
-                          '\$${item['Amount for Commission']}', false, false),
-                      _customDataCell('${item['Commission %']}%', false, false),
-                      _customDataCell(
-                          '\$${item['Total Commission']}', false, false),
-                      _customDataCell(
-                          '\$${item['Other Amount']}', false, false),
-                      _customDataCell(
-                          '\$${item['Total Amount to be Received']}',
-                          false,
-                          false),
-                      _customDataCell(
-                          '\$${item['Received Amount']}', false, false),
-                      _customDataCell('${item['Received Date']}', false, false),
-                      _customDataCell(item['Commission Note'], false, false),
-                      _customDataCell(item['Comments'], false, false),
+                      child: const Text('Create Invoice'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    headingRowColor: MaterialStateColor.resolveWith(
+                        (states) => Colors.teal.shade50),
+                    dividerThickness: 1,
+                    columns: [
+                      _customDataColumn('Select'),
+                      _customDataColumn('Edit'),
+                      _customDataColumn('Change Log'),
+                      _customDataColumn('Index'),
+                      _customDataColumn('Status'),
+                      _customDataColumn('Buyer name'),
+                      _customDataColumn('Products'),
+                      _customDataColumn('Unit Price'),
+                      _customDataColumn('Quantity'),
+                      _customDataColumn('Invoice Number'),
+                      _customDataColumn('Invoice Date'),
+                      _customDataColumn('Terms of Payment'),
+                      _customDataColumn('Supplier name'),
+                      _customDataColumn('Letter of Credit Number'),
+                      _customDataColumn('Letter of Credit Date'),
+                      _customDataColumn('LC Value'),
+                      _customDataColumn('Amount for Commission'),
+                      _customDataColumn('Commission %'),
+                      _customDataColumn('Total Commission'),
+                      _customDataColumn('Other Amount'),
+                      _customDataColumn('Total Amount to be Received'),
+                      _customDataColumn('Received Amount'),
+                      _customDataColumn('Received Date'),
+                      _customDataColumn('Commission Note'),
+                      _customDataColumn('Comments'),
                     ],
-                  );
-                }).toList(),
-              ),
+                    rows: filteredItems.map((item) {
+                      int index = items.indexOf(item);
+                      return DataRow(
+                        selected: selectedRows[index],
+                        color: MaterialStateColor.resolveWith(
+                            (states) => Colors.grey.shade100),
+                        cells: [
+                          _customDataCellWithWidget(
+                            Checkbox(
+                              value: selectedRows[index],
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  selectedRows[index] = value!;
+
+                                  /// if an item is added then remove it; otherwise add it
+                                  if (selectedOrders
+                                      .contains(items[index]['docID'])) {
+                                    selectedOrders.remove(items[index]);
+                                  } else {
+                                    selectedOrders.add(items[index]);
+                                  }
+                                });
+                              },
+                              activeColor: Colors.teal,
+                            ),
+                          ),
+                          showEdit
+                              ? _customDataCellWithWidget(
+                                  IconButton(
+                                    icon: const Icon(Icons.edit,
+                                        color: Colors.teal),
+                                    onPressed: () => showAddEditDialog(item),
+                                  ),
+                                )
+                              : _customDataCellWithWidget(Container()),
+                          _customDataCellWithWidget(
+                            IconButton(
+                              icon: Icon(Icons.description,
+                                  color: Colors.blueAccent.shade100),
+                              onPressed: () => showChangeLogDialog(item),
+                            ),
+                          ),
+                          _customDataCell(item['Index'], false, false),
+                          _customDataCell(item['Status'], false, false),
+                          _customDataCell(item['Buyer name'], true, false),
+                          _customDataCell(item['Products'], false, false),
+                          _customDataCell(
+                              '\$${item['Unit Price']}', false, false),
+                          _customDataCell('${item['Quantity']}', false, false),
+                          _customDataCell(
+                              '${item['Invoice Number']}', false, false),
+                          _customDataCell(
+                              '${item['Invoice Date']}', false, false),
+                          _customDataCell(
+                              item['Terms of Payment'], false, false),
+                          _customDataCell(item['Supplier name'], false, true),
+                          _customDataCell('${item['Letter of Credit Number']}',
+                              false, false),
+                          _customDataCell(
+                              '${item['Letter of Credit Date']}', false, false),
+                          _customDataCell('${item['LC Value']}', false, false),
+                          _customDataCell('\$${item['Amount for Commission']}',
+                              false, false),
+                          _customDataCell(
+                              '${item['Commission %']}%', false, false),
+                          _customDataCell(
+                              '\$${item['Total Commission']}', false, false),
+                          _customDataCell(
+                              '\$${item['Other Amount']}', false, false),
+                          _customDataCell(
+                              '\$${item['Total Amount to be Received']}',
+                              false,
+                              false),
+                          _customDataCell(
+                              '\$${item['Received Amount']}', false, false),
+                          _customDataCell(
+                              '${item['Received Date']}', false, false),
+                          _customDataCell(
+                              item['Commission Note'], false, false),
+                          _customDataCell(item['Comments'], false, false),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
             ),
           )
         : const CircularProgressIndicator();
@@ -170,48 +226,48 @@ class HorizontalScrollGridState extends State<HorizontalScrollGrid> {
         .orderBy('buyerName')
         .get()
         .then((snapshots) {
-      stream = snapshots.docs;
-      items = List.generate(stream.length, (index) {
-        return {
-          'Index': '${index + 1}',
-          'Buyer name': widget.buyerName == ''
-              ? stream[index].data()['buyerName']
-              : widget.buyerName,
-          'Products': stream[index].data()['productName'],
-          'Unit Price': stream[index].data()['unitPrice'],
-          'Quantity': stream[index].data()['quantity'],
-          'Invoice Number': stream[index].data()['invoiceNumber'],
-          'Invoice Date':
-              '${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['invoiceDate']).month}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['invoiceDate']).day}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['invoiceDate']).year}',
-          'Terms of Payment': stream[index].data()['termsOfPayment'],
-          'Supplier name': widget.sellerName == ''
-              ? stream[index].data()['supplierName']
-              : widget.sellerName,
-          'Letter of Credit Number':
-              stream[index].data()['letterOfCreditNumber'],
-          'Letter of Credit Date':
-              '${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['letterOfCreditDate']).month}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['letterOfCreditDate']).day}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['letterOfCreditDate']).year}',
-          'LC Value': stream[index].data()['lcValue'],
-          'Amount for Commission': stream[index].data()['amountForCommission'],
-          'Commission %': stream[index].data()['commissionPercentage'],
-          'Total Commission': stream[index].data()['totalCommission'],
-          'Other Amount': stream[index].data()['otherAmount'],
-          'Total Amount to be Received':
-              stream[index].data()['totalAmountToBeReceived'],
-          'Received Amount': stream[index].data()['receivedAmount'],
-          'Received Date':
-              '${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['receivedDate']).month}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['receivedDate']).day}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['receivedDate']).year}',
-          'Commission Note': stream[index].data()['commissionNote'],
-          'Comments': stream[index].data()['comments'],
-          'Status': stream[index].data()['status'],
-          'createdByEmail': stream[index].data()['createdByEmail'],
-          'createdOn': stream[index].data()['createdOn'],
-          'docID': stream[index].id,
-        };
-      });
-      selectedRows = List.generate(items.length, (index) => false);
       setState(() {
-        doneLoading = true;
+        stream = snapshots.docs;
+        items = List.generate(stream.length, (index) {
+          return {
+            'Index': '${index + 1}',
+            'Buyer name': widget.buyerName == ''
+                ? stream[index].data()['buyerName']
+                : widget.buyerName,
+            'Products': stream[index].data()['productName'],
+            'Unit Price': stream[index].data()['unitPrice'],
+            'Quantity': stream[index].data()['quantity'],
+            'Invoice Number': stream[index].data()['invoiceNumber'],
+            'Invoice Date':
+                '${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['invoiceDate']).month}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['invoiceDate']).day}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['invoiceDate']).year}',
+            'Terms of Payment': stream[index].data()['termsOfPayment'],
+            'Supplier name': widget.sellerName == ''
+                ? stream[index].data()['supplierName']
+                : widget.sellerName,
+            'Letter of Credit Number':
+                stream[index].data()['letterOfCreditNumber'],
+            'Letter of Credit Date':
+                '${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['letterOfCreditDate']).month}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['letterOfCreditDate']).day}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['letterOfCreditDate']).year}',
+            'LC Value': stream[index].data()['lcValue'],
+            'Amount for Commission':
+                stream[index].data()['amountForCommission'],
+            'Commission %': stream[index].data()['commissionPercentage'],
+            'Total Commission': stream[index].data()['totalCommission'],
+            'Other Amount': stream[index].data()['otherAmount'],
+            'Total Amount to be Received':
+                stream[index].data()['totalAmountToBeReceived'],
+            'Received Amount': stream[index].data()['receivedAmount'],
+            'Received Date':
+                '${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['receivedDate']).month}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['receivedDate']).day}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['receivedDate']).year}',
+            'Commission Note': stream[index].data()['commissionNote'],
+            'Comments': stream[index].data()['comments'],
+            'Status': stream[index].data()['status'],
+            'createdByEmail': stream[index].data()['createdByEmail'],
+            'createdOn': stream[index].data()['createdOn'],
+            'docID': stream[index].id,
+          };
+        });
+        selectedRows = List.generate(items.length, (index) => false);
       });
     });
   }
@@ -637,6 +693,153 @@ class HorizontalScrollGridState extends State<HorizontalScrollGrid> {
           ),
         ),
         child: widget,
+      ),
+    );
+  }
+
+  Future<void> initiateInvoice() async {
+    if (selectedOrders.isEmpty) {
+      Fluttertoast.showToast(
+          msg: 'Select orders to create an invoice',
+          timeInSecForIosWeb: 3,
+          backgroundColor: Colors.red,
+          textColor: Colors.white);
+    } else if (selectedOrders.length > 10) {
+      Fluttertoast.showToast(
+          msg: 'Only 10 orders can be selected at a time',
+          timeInSecForIosWeb: 3,
+          backgroundColor: Colors.red,
+          textColor: Colors.white);
+    } else {
+      await checkInvoicePermission();
+    }
+  }
+
+  checkInvoicePermission() async {
+    String buyerName = selectedOrders[0]['Buyer name'];
+    bool isSameBuyer = true;
+    for (var items in selectedOrders) {
+      // print('-----');
+      // print(buyerName);
+      // print(items['Buyer name']);
+      // print('-----');
+
+      if (items['Buyer name'] != buyerName) {
+        setState(() {
+          isSameBuyer = false;
+        });
+      }
+    }
+
+    if (!isSameBuyer) {
+      return Fluttertoast.showToast(
+          msg: 'All the invoice item must be from the same buyer',
+          timeInSecForIosWeb: 3,
+          backgroundColor: Colors.red,
+          textColor: Colors.white);
+    } else {
+      await createInvoice();
+    }
+  }
+
+  createInvoice() async {
+    final pdf = pw.Document();
+    double subTotal = 0.0;
+    String buyerName = selectedOrders[0]['Buyer name'];
+    String invoiceInfo = selectedOrders[0]['Invoice Number'];
+    for (var items in selectedOrders) {
+      if (items['Buyer name'] != buyerName) {
+        return Fluttertoast.showToast(
+            msg: 'All the invoice item must be from the same buyer',
+            timeInSecForIosWeb: 3,
+            backgroundColor: Colors.red,
+            textColor: Colors.white);
+      } else {
+        subTotal += double.tryParse(items['Total Amount to be Received'])!;
+      }
+    }
+
+    final List<CustomRow> elements = [
+      CustomRow("Item Name", "Item Price", "Amount", "Total"),
+      for (var items in selectedOrders)
+        CustomRow(
+          items['Products'],
+          "\$${items['Unit Price'].toString()}",
+          items['Quantity'].toString(),
+          "\$${items['Total Amount to be Received'].toString()}",
+        ),
+      CustomRow(
+        "Sub Total",
+        "",
+        "",
+        "\$$subTotal",
+      ),
+    ];
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        build: (pw.Context context) {
+          return pw.Column(
+            children: [
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  // pw.Column(
+                  //   children: [
+                  //     pw.Text("Customer Name"),
+                  //     pw.Text("Customer Address"),
+                  //     pw.Text("Customer City"),
+                  //     pw.Text("Invoice info"),
+                  //   ],
+                  // ),
+                  pw.Column(
+                    children: [
+                      pw.Text("Buyer: $buyerName"),
+                      pw.Text("Invoice No: $invoiceInfo")
+                    ],
+                  )
+                ],
+              ),
+              pw.SizedBox(height: 50),
+              itemColumn(elements),
+              pw.SizedBox(height: 25),
+            ],
+          );
+        },
+      ),
+    );
+    var savedFile = await pdf.save();
+    List<int> fileInts = List.from(savedFile);
+    html.AnchorElement(
+        href:
+            "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(fileInts)}")
+      ..setAttribute("download", "${DateTime.now().millisecondsSinceEpoch}.pdf")
+      ..click();
+    selectedOrders.clear();
+  }
+
+  pw.Expanded itemColumn(List<CustomRow> elements) {
+    return pw.Expanded(
+      child: pw.Column(
+        children: [
+          for (var element in elements)
+            pw.Row(
+              children: [
+                pw.Expanded(
+                    child: pw.Text(element.itemName,
+                        textAlign: pw.TextAlign.left)),
+                pw.Expanded(
+                    child: pw.Text(element.itemPrice,
+                        textAlign: pw.TextAlign.right)),
+                pw.Expanded(
+                    child:
+                        pw.Text(element.amount, textAlign: pw.TextAlign.right)),
+                pw.Expanded(
+                    child:
+                        pw.Text(element.total, textAlign: pw.TextAlign.right)),
+              ],
+            )
+        ],
       ),
     );
   }

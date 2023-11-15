@@ -178,13 +178,15 @@ class OrderScreenState extends State<OrderScreen> {
           ),
         ),
         const SizedBox(width: 8),
-        ElevatedButton(
-          onPressed: () => showAddEditDialog(),
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all(Colors.teal),
-          ),
-          child: const Text('Create Order'),
-        ),
+        showControls
+            ? ElevatedButton(
+                onPressed: () => showAddEditDialog(),
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Colors.teal),
+                ),
+                child: const Text('Create Order'),
+              )
+            : Container(),
       ],
     );
   }
@@ -199,11 +201,13 @@ class OrderScreenState extends State<OrderScreen> {
       if (FirebaseAuth.instance.currentUser!.email == workspace['owner']) {
         setState(() {
           showControls = true;
+          loadpage = true;
+        });
+      } else {
+        setState(() {
+          loadpage = true;
         });
       }
-      setState(() {
-        loadpage = true;
-      });
     });
   }
 
