@@ -4,18 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:importexport/utility/HorizontalScrollGrid.dart';
 import 'package:importexport/views/AccessControlScreen.dart';
 import 'package:importexport/views/LoginScreen.dart';
-import 'package:importexport/views/OrderScreen.dart';
+import 'package:importexport/views/UnpaidOrderScreen.dart';
 
-class PaidOrdersScreen extends StatefulWidget {
+class AllOrdersScreen extends StatefulWidget {
   @override
-  PaidOrdersScreenState createState() => PaidOrdersScreenState();
+  AllOrdersScreenState createState() => AllOrdersScreenState();
 }
 
-class PaidOrdersScreenState extends State<PaidOrdersScreen> {
+class AllOrdersScreenState extends State<AllOrdersScreen> {
   TextEditingController? buyerController = TextEditingController(text: '');
   TextEditingController? sellerController = TextEditingController(text: '');
-  bool loadpage = false;
-  int counter = 0;
+  bool loadOrders = false;
   String buyerName = '';
   String sellerName = '';
 
@@ -44,7 +43,7 @@ class PaidOrdersScreenState extends State<PaidOrdersScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => OrderScreen(),
+                builder: (context) => UnpaidOrderScreen(),
               ),
             );
           },
@@ -62,7 +61,7 @@ class PaidOrdersScreenState extends State<PaidOrdersScreen> {
           children: [
             _buildSearchAndFilter(),
             const SizedBox(height: 20),
-            counter > 0
+            loadOrders
                 ? Expanded(
                     child: HorizontalScrollGrid(
                       buyerName,
@@ -141,19 +140,16 @@ class PaidOrdersScreenState extends State<PaidOrdersScreen> {
     });
   }
 
-  void setFalse() {
-    setState(() {
-      buyerName = buyerController!.text;
-      sellerName = sellerController!.text;
-      loadpage = false;
-    });
-  }
-
   void reloadOrders() {
     setState(() {
-      buyerName = buyerController!.text;
-      sellerName = sellerController!.text;
-      counter++;
+      loadOrders = false;
+    });
+    Future.delayed(const Duration(milliseconds: 50), () {
+      setState(() {
+        buyerName = buyerController!.text;
+        sellerName = sellerController!.text;
+        loadOrders = true;
+      });
     });
   }
 }

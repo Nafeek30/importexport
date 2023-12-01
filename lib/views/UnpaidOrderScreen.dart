@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:importexport/utility/HorizontalScrollGrid.dart';
 import 'package:importexport/views/AccessControlScreen.dart';
 import 'package:importexport/views/LoginScreen.dart';
-import 'package:importexport/views/PaidOrdersScreen.dart';
+import 'package:importexport/views/AllOrdersScreen.dart';
 
-class OrderScreen extends StatefulWidget {
+class UnpaidOrderScreen extends StatefulWidget {
   @override
-  OrderScreenState createState() => OrderScreenState();
+  UnpaidOrderScreenState createState() => UnpaidOrderScreenState();
 }
 
-class OrderScreenState extends State<OrderScreen> {
+class UnpaidOrderScreenState extends State<UnpaidOrderScreen> {
   bool loadpage = false;
   bool showControls = false;
 
@@ -37,7 +37,7 @@ class OrderScreenState extends State<OrderScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => OrderScreen(),
+                      builder: (context) => UnpaidOrderScreen(),
                     ),
                   );
                 },
@@ -89,7 +89,7 @@ class OrderScreenState extends State<OrderScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PaidOrdersScreen(),
+                              builder: (context) => AllOrdersScreen(),
                             ),
                           );
                         },

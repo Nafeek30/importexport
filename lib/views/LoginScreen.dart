@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:importexport/views/OrderScreen.dart';
+import 'package:importexport/views/UnpaidOrderScreen.dart';
 import 'package:importexport/views/PendingAuthScreen.dart';
 import 'package:importexport/views/UserSignupScreen.dart';
 import 'package:importexport/views/WorkspaceSignUpScreen.dart';
@@ -148,7 +148,7 @@ class LoginScreenState extends State<LoginScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => OrderScreen(),
+                  builder: (context) => UnpaidOrderScreen(),
                 ),
               );
             } else {

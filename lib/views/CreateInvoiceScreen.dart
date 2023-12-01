@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:importexport/views/OrderScreen.dart';
+import 'package:importexport/views/UnpaidOrderScreen.dart';
 import 'package:pdf/pdf.dart';
 
 class CreateInvoiceScreen extends StatefulWidget {
@@ -38,7 +38,7 @@ class CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => OrderScreen(),
+                builder: (context) => UnpaidOrderScreen(),
               ),
             );
           },
