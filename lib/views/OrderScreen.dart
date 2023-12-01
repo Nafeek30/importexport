@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:importexport/utility/HorizontalScrollGrid.dart';
 import 'package:importexport/views/AccessControlScreen.dart';
 import 'package:importexport/views/LoginScreen.dart';
+import 'package:importexport/views/PaidOrdersScreen.dart';
 
 class OrderScreen extends StatefulWidget {
   @override
@@ -11,21 +12,17 @@ class OrderScreen extends StatefulWidget {
 }
 
 class OrderScreenState extends State<OrderScreen> {
-  TextEditingController? searchController;
   bool loadpage = false;
   bool showControls = false;
-  String? filterStatus;
 
   @override
   void initState() {
     super.initState();
-    searchController = TextEditingController();
     getOwnerInfo();
   }
 
   @override
   void dispose() {
-    searchController?.dispose();
     super.dispose();
   }
 
@@ -57,7 +54,7 @@ class OrderScreenState extends State<OrderScreen> {
                 ),
               ),
               title: const Text(
-                "Inventory",
+                "Unpaid Orders",
                 style: TextStyle(
                   color: Colors.white,
                 ),
@@ -66,6 +63,49 @@ class OrderScreenState extends State<OrderScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
+                    showControls
+                        ? Padding(
+                            padding: EdgeInsets.only(right: 20.0),
+                            child: ElevatedButton(
+                              onPressed: () => showAddEditDialog(),
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all(Colors.white),
+                              ),
+                              child: const Text(
+                                'Create Order',
+                                style: TextStyle(
+                                  color: Colors.teal,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          )
+                        : Container(),
+                    Padding(
+                      padding: EdgeInsets.only(right: 20.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PaidOrdersScreen(),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          elevation: 5,
+                        ),
+                        child: Text(
+                          'All Orders',
+                          style: TextStyle(
+                            color: Colors.blueAccent.shade200,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
                     showControls
                         ? Padding(
                             padding: EdgeInsets.only(right: 20.0),
@@ -79,10 +119,16 @@ class OrderScreenState extends State<OrderScreen> {
                                 );
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blueAccent.shade200,
+                                backgroundColor: Colors.white,
                                 elevation: 5,
                               ),
-                              child: Text('Controls'),
+                              child: Text(
+                                'Controls',
+                                style: TextStyle(
+                                  color: Colors.orangeAccent.shade200,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                           )
                         : Container(),
@@ -99,10 +145,16 @@ class OrderScreenState extends State<OrderScreen> {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.redAccent.shade200,
+                          backgroundColor: Colors.white,
                           elevation: 5,
                         ),
-                        child: Text('Logout'),
+                        child: Text(
+                          'Logout',
+                          style: TextStyle(
+                            color: Colors.redAccent.shade200,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -113,11 +165,12 @@ class OrderScreenState extends State<OrderScreen> {
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 children: [
-                  _buildSearchAndFilter(),
                   const SizedBox(height: 20),
                   Expanded(
                     child: HorizontalScrollGrid(
-                        searchController!, filterStatus, '', ''),
+                      '',
+                      '',
+                    ),
                   ),
                 ],
               ),
@@ -126,69 +179,6 @@ class OrderScreenState extends State<OrderScreen> {
         : Center(
             child: CircularProgressIndicator(),
           );
-  }
-
-  Widget _buildSearchAndFilter() {
-    return Row(
-      children: [
-        Expanded(
-          child: TextField(
-            controller: searchController,
-            decoration: InputDecoration(
-              labelText: 'Search by Name',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              fillColor: Colors.teal[50],
-              filled: true,
-              prefixIcon: const Icon(Icons.search, color: Colors.teal),
-            ),
-            onChanged: (value) {
-              setState(() {});
-            },
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: DropdownButtonHideUnderline(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              decoration: BoxDecoration(
-                color: Colors.teal[50],
-                borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(color: Colors.teal[100]!),
-              ),
-              child: DropdownButton<String>(
-                value: filterStatus,
-                hint: const Text("Filter by pay status"),
-                isExpanded: true,
-                onChanged: (newValue) {
-                  setState(() {
-                    filterStatus = newValue;
-                  });
-                },
-                items: ["PAID", "UNPAID"].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        showControls
-            ? ElevatedButton(
-                onPressed: () => showAddEditDialog(),
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.teal),
-                ),
-                child: const Text('Create Order'),
-              )
-            : Container(),
-      ],
-    );
   }
 
   /// Get the owner info of this workspace to check if [Controls] access should be given

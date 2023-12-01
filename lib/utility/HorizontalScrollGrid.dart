@@ -5,9 +5,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:importexport/views/BuyerScreen.dart';
-import 'package:importexport/views/CreateInvoiceScreen.dart';
-import 'package:importexport/views/SellerScreen.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
@@ -21,14 +18,10 @@ class CustomRow {
 }
 
 class HorizontalScrollGrid extends StatefulWidget {
-  final String? buyerName;
-  final String? sellerName;
-  final TextEditingController searchController;
-  final String? filterStatus;
+  final String buyerName;
+  final String sellerName;
 
-  HorizontalScrollGrid(
-      this.searchController, this.filterStatus, this.buyerName, this.sellerName,
-      {super.key});
+  HorizontalScrollGrid(this.buyerName, this.sellerName, {super.key});
 
   @override
   HorizontalScrollGridState createState() => HorizontalScrollGridState();
@@ -60,21 +53,7 @@ class HorizontalScrollGridState extends State<HorizontalScrollGrid> {
 
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> filteredItems = items.where((item) {
-      if (widget.searchController.text.isNotEmpty &&
-          !item['Buyer Name']
-              .toLowerCase()
-              .contains(widget.searchController.text.toLowerCase())) {
-        return false;
-      }
-      if (widget.filterStatus == "PAID" && item['Status']! == 'UNPAID') {
-        return false;
-      } else if (widget.filterStatus == "UNPAID" && item['Status']! == 'PAID') {
-        return false;
-      }
-      return true;
-    }).toList();
-
+    List<Map<String, dynamic>> filteredItems = items.toList();
     return doneLoading
         ? SingleChildScrollView(
             scrollDirection: Axis.vertical,
@@ -221,55 +200,194 @@ class HorizontalScrollGridState extends State<HorizontalScrollGrid> {
 
   /// Get all Firestore orders
   Future<void> fetchData() async {
-    FirebaseFirestore.instance
-        .collection('orders')
-        .orderBy('buyerName')
-        .get()
-        .then((snapshots) {
-      setState(() {
-        stream = snapshots.docs;
-        items = List.generate(stream.length, (index) {
-          return {
-            'Index': '${index + 1}',
-            'Buyer name': widget.buyerName == ''
-                ? stream[index].data()['buyerName']
-                : widget.buyerName,
-            'Products': stream[index].data()['productName'],
-            'Unit Price': stream[index].data()['unitPrice'],
-            'Quantity': stream[index].data()['quantity'],
-            'Invoice Number': stream[index].data()['invoiceNumber'],
-            'Invoice Date':
-                '${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['invoiceDate']).month}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['invoiceDate']).day}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['invoiceDate']).year}',
-            'Terms of Payment': stream[index].data()['termsOfPayment'],
-            'Supplier name': widget.sellerName == ''
-                ? stream[index].data()['supplierName']
-                : widget.sellerName,
-            'Letter of Credit Number':
-                stream[index].data()['letterOfCreditNumber'],
-            'Letter of Credit Date':
-                '${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['letterOfCreditDate']).month}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['letterOfCreditDate']).day}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['letterOfCreditDate']).year}',
-            'LC Value': stream[index].data()['lcValue'],
-            'Amount for Commission':
-                stream[index].data()['amountForCommission'],
-            'Commission %': stream[index].data()['commissionPercentage'],
-            'Total Commission': stream[index].data()['totalCommission'],
-            'Other Amount': stream[index].data()['otherAmount'],
-            'Total Amount to be Received':
-                stream[index].data()['totalAmountToBeReceived'],
-            'Received Amount': stream[index].data()['receivedAmount'],
-            'Received Date':
-                '${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['receivedDate']).month}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['receivedDate']).day}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['receivedDate']).year}',
-            'Commission Note': stream[index].data()['commissionNote'],
-            'Comments': stream[index].data()['comments'],
-            'Status': stream[index].data()['status'],
-            'createdByEmail': stream[index].data()['createdByEmail'],
-            'createdOn': stream[index].data()['createdOn'],
-            'docID': stream[index].id,
-          };
+    print(widget.buyerName);
+    print(widget.sellerName);
+    if (widget.buyerName.isEmpty && widget.sellerName.isEmpty) {
+      FirebaseFirestore.instance
+          .collection('orders')
+          .where('status', isEqualTo: 'UNPAID')
+          .get()
+          .then((snapshots) {
+        setState(() {
+          stream = snapshots.docs;
+          items = List.generate(stream.length, (index) {
+            return {
+              'Index': '${index + 1}',
+              'Buyer name': stream[index].data()['buyerName'],
+              'Products': stream[index].data()['productName'],
+              'Unit Price': stream[index].data()['unitPrice'],
+              'Quantity': stream[index].data()['quantity'],
+              'Invoice Number': stream[index].data()['invoiceNumber'],
+              'Invoice Date':
+                  '${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['invoiceDate']).month}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['invoiceDate']).day}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['invoiceDate']).year}',
+              'Terms of Payment': stream[index].data()['termsOfPayment'],
+              'Supplier name': stream[index].data()['supplierName'],
+              'Letter of Credit Number':
+                  stream[index].data()['letterOfCreditNumber'],
+              'Letter of Credit Date':
+                  '${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['letterOfCreditDate']).month}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['letterOfCreditDate']).day}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['letterOfCreditDate']).year}',
+              'LC Value': stream[index].data()['lcValue'],
+              'Amount for Commission':
+                  stream[index].data()['amountForCommission'],
+              'Commission %': stream[index].data()['commissionPercentage'],
+              'Total Commission': stream[index].data()['totalCommission'],
+              'Other Amount': stream[index].data()['otherAmount'],
+              'Total Amount to be Received':
+                  stream[index].data()['totalAmountToBeReceived'],
+              'Received Amount': stream[index].data()['receivedAmount'],
+              'Received Date':
+                  '${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['receivedDate']).month}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['receivedDate']).day}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['receivedDate']).year}',
+              'Commission Note': stream[index].data()['commissionNote'],
+              'Comments': stream[index].data()['comments'],
+              'Status': stream[index].data()['status'],
+              'createdByEmail': stream[index].data()['createdByEmail'],
+              'createdOn': stream[index].data()['createdOn'],
+              'docID': stream[index].id,
+            };
+          });
+          selectedRows = List.generate(items.length, (index) => false);
         });
-        selectedRows = List.generate(items.length, (index) => false);
       });
-    });
+    } else if (widget.buyerName.isNotEmpty && widget.sellerName.isEmpty) {
+      FirebaseFirestore.instance
+          .collection('orders')
+          .where('buyerName', isEqualTo: widget.buyerName)
+          .get()
+          .then((snapshots) {
+        setState(() {
+          stream = snapshots.docs;
+          items = List.generate(stream.length, (index) {
+            return {
+              'Index': '${index + 1}',
+              'Buyer name': stream[index].data()['buyerName'],
+              'Products': stream[index].data()['productName'],
+              'Unit Price': stream[index].data()['unitPrice'],
+              'Quantity': stream[index].data()['quantity'],
+              'Invoice Number': stream[index].data()['invoiceNumber'],
+              'Invoice Date':
+                  '${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['invoiceDate']).month}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['invoiceDate']).day}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['invoiceDate']).year}',
+              'Terms of Payment': stream[index].data()['termsOfPayment'],
+              'Supplier name': stream[index].data()['supplierName'],
+              'Letter of Credit Number':
+                  stream[index].data()['letterOfCreditNumber'],
+              'Letter of Credit Date':
+                  '${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['letterOfCreditDate']).month}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['letterOfCreditDate']).day}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['letterOfCreditDate']).year}',
+              'LC Value': stream[index].data()['lcValue'],
+              'Amount for Commission':
+                  stream[index].data()['amountForCommission'],
+              'Commission %': stream[index].data()['commissionPercentage'],
+              'Total Commission': stream[index].data()['totalCommission'],
+              'Other Amount': stream[index].data()['otherAmount'],
+              'Total Amount to be Received':
+                  stream[index].data()['totalAmountToBeReceived'],
+              'Received Amount': stream[index].data()['receivedAmount'],
+              'Received Date':
+                  '${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['receivedDate']).month}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['receivedDate']).day}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['receivedDate']).year}',
+              'Commission Note': stream[index].data()['commissionNote'],
+              'Comments': stream[index].data()['comments'],
+              'Status': stream[index].data()['status'],
+              'createdByEmail': stream[index].data()['createdByEmail'],
+              'createdOn': stream[index].data()['createdOn'],
+              'docID': stream[index].id,
+            };
+          });
+          selectedRows = List.generate(items.length, (index) => false);
+        });
+      });
+    } else if (widget.buyerName.isEmpty && widget.sellerName.isNotEmpty) {
+      FirebaseFirestore.instance
+          .collection('orders')
+          .where('supplierName', isEqualTo: widget.sellerName)
+          .get()
+          .then((snapshots) {
+        setState(() {
+          stream = snapshots.docs;
+          items = List.generate(stream.length, (index) {
+            return {
+              'Index': '${index + 1}',
+              'Buyer name': stream[index].data()['buyerName'],
+              'Products': stream[index].data()['productName'],
+              'Unit Price': stream[index].data()['unitPrice'],
+              'Quantity': stream[index].data()['quantity'],
+              'Invoice Number': stream[index].data()['invoiceNumber'],
+              'Invoice Date':
+                  '${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['invoiceDate']).month}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['invoiceDate']).day}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['invoiceDate']).year}',
+              'Terms of Payment': stream[index].data()['termsOfPayment'],
+              'Supplier name': stream[index].data()['supplierName'],
+              'Letter of Credit Number':
+                  stream[index].data()['letterOfCreditNumber'],
+              'Letter of Credit Date':
+                  '${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['letterOfCreditDate']).month}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['letterOfCreditDate']).day}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['letterOfCreditDate']).year}',
+              'LC Value': stream[index].data()['lcValue'],
+              'Amount for Commission':
+                  stream[index].data()['amountForCommission'],
+              'Commission %': stream[index].data()['commissionPercentage'],
+              'Total Commission': stream[index].data()['totalCommission'],
+              'Other Amount': stream[index].data()['otherAmount'],
+              'Total Amount to be Received':
+                  stream[index].data()['totalAmountToBeReceived'],
+              'Received Amount': stream[index].data()['receivedAmount'],
+              'Received Date':
+                  '${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['receivedDate']).month}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['receivedDate']).day}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['receivedDate']).year}',
+              'Commission Note': stream[index].data()['commissionNote'],
+              'Comments': stream[index].data()['comments'],
+              'Status': stream[index].data()['status'],
+              'createdByEmail': stream[index].data()['createdByEmail'],
+              'createdOn': stream[index].data()['createdOn'],
+              'docID': stream[index].id,
+            };
+          });
+          selectedRows = List.generate(items.length, (index) => false);
+        });
+      });
+    } else {
+      FirebaseFirestore.instance
+          .collection('orders')
+          .where('buyerName', isEqualTo: widget.buyerName)
+          .where('supplierName', isEqualTo: widget.sellerName)
+          .get()
+          .then((snapshots) {
+        setState(() {
+          stream = snapshots.docs;
+          items = List.generate(stream.length, (index) {
+            return {
+              'Index': '${index + 1}',
+              'Buyer name': stream[index].data()['buyerName'],
+              'Products': stream[index].data()['productName'],
+              'Unit Price': stream[index].data()['unitPrice'],
+              'Quantity': stream[index].data()['quantity'],
+              'Invoice Number': stream[index].data()['invoiceNumber'],
+              'Invoice Date':
+                  '${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['invoiceDate']).month}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['invoiceDate']).day}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['invoiceDate']).year}',
+              'Terms of Payment': stream[index].data()['termsOfPayment'],
+              'Supplier name': stream[index].data()['supplierName'],
+              'Letter of Credit Number':
+                  stream[index].data()['letterOfCreditNumber'],
+              'Letter of Credit Date':
+                  '${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['letterOfCreditDate']).month}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['letterOfCreditDate']).day}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['letterOfCreditDate']).year}',
+              'LC Value': stream[index].data()['lcValue'],
+              'Amount for Commission':
+                  stream[index].data()['amountForCommission'],
+              'Commission %': stream[index].data()['commissionPercentage'],
+              'Total Commission': stream[index].data()['totalCommission'],
+              'Other Amount': stream[index].data()['otherAmount'],
+              'Total Amount to be Received':
+                  stream[index].data()['totalAmountToBeReceived'],
+              'Received Amount': stream[index].data()['receivedAmount'],
+              'Received Date':
+                  '${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['receivedDate']).month}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['receivedDate']).day}/${DateTime.fromMillisecondsSinceEpoch(stream[index].data()['receivedDate']).year}',
+              'Commission Note': stream[index].data()['commissionNote'],
+              'Comments': stream[index].data()['comments'],
+              'Status': stream[index].data()['status'],
+              'createdByEmail': stream[index].data()['createdByEmail'],
+              'createdOn': stream[index].data()['createdOn'],
+              'docID': stream[index].id,
+            };
+          });
+          selectedRows = List.generate(items.length, (index) => false);
+        });
+      });
+    }
   }
 
   /// Permission on whether current user can edit orders or not
@@ -642,24 +760,7 @@ class HorizontalScrollGridState extends State<HorizontalScrollGrid> {
       GestureDetector(
         onTap: () {
           if (isBuyer) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => BuyerScreen(
-                  buyerName: data!,
-                ),
-              ),
-            );
-          } else if (isSeller) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => SellerScreen(
-                  sellerName: data!,
-                ),
-              ),
-            );
-          }
+          } else if (isSeller) {}
         },
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
