@@ -75,8 +75,7 @@ class WorkspaceSignUpScreenState extends State<WorkspaceSignUpScreen> {
                       onPressed: workplaceSignUp,
                       child: Text('Sign Up'),
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.teal[400],
-                        onPrimary: Colors.white,
+                        foregroundColor: Colors.white, backgroundColor: Colors.teal[400],
                       ),
                     ),
                   ),

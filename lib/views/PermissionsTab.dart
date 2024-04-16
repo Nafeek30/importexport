@@ -47,7 +47,7 @@ class PermisisonsTabState extends State<PermissionsTab> {
                             backgroundColor: Colors.green,
                             elevation: 5,
                           ),
-                          child: const Text('Read and Write'),
+                          child: const Text('Read and Write', style: TextStyle(color: Colors.white,),),
                         ),
                         const SizedBox(
                           width: 2,
@@ -60,7 +60,7 @@ class PermisisonsTabState extends State<PermissionsTab> {
                             backgroundColor: Colors.blue,
                             elevation: 5,
                           ),
-                          child: const Text('Read Only'),
+                          child: const Text('Read Only', style: TextStyle(color: Colors.white,),),
                         ),
                       ],
                     ),

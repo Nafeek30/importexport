@@ -79,8 +79,7 @@ class UserSignUpScreenState extends State<UserSignUpScreen> {
                       onPressed: userSignUp,
                       child: Text('Sign Up'),
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.teal[400],
-                        onPrimary: Colors.white,
+                        foregroundColor: Colors.white, backgroundColor: Colors.teal[400],
                       ),
                     ),
                   ),
@@ -99,8 +98,7 @@ class UserSignUpScreenState extends State<UserSignUpScreen> {
                       },
                       child: Text('Create a Workspace'),
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.blueAccent[400],
-                        onPrimary: Colors.white,
+                        foregroundColor: Colors.white, backgroundColor: Colors.blueAccent[400],
                       ),
                     ),
                   ),

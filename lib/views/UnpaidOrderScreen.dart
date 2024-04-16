@@ -328,12 +328,12 @@ class UnpaidOrderScreenState extends State<UnpaidOrderScreen> {
                   ),
                   TextFormField(
                     controller: unitPriceController,
-                    decoration: InputDecoration(labelText: 'Unit Price'),
+                    decoration: InputDecoration(labelText: 'Unit Price(\$)'),
                     keyboardType:
                         TextInputType.numberWithOptions(decimal: true),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter unit price';
+                        return 'Please enter the dollar value of the unit price';
                       }
                       return null;
                     },
@@ -404,7 +404,7 @@ class UnpaidOrderScreenState extends State<UnpaidOrderScreen> {
                   TextFormField(
                     controller: commissionPercentageController,
                     decoration:
-                        InputDecoration(labelText: 'Commission Percentage'),
+                        InputDecoration(labelText: 'Commission Percentage(%)'),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter commission percentage';
@@ -414,7 +414,7 @@ class UnpaidOrderScreenState extends State<UnpaidOrderScreen> {
                   ),
                   TextFormField(
                     controller: otherAmountController,
-                    decoration: InputDecoration(labelText: 'Other Amount'),
+                    decoration: InputDecoration(labelText: 'Other Amount (\$)'),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter other amount';
@@ -424,7 +424,7 @@ class UnpaidOrderScreenState extends State<UnpaidOrderScreen> {
                   ),
                   TextFormField(
                     controller: receivedAmountController,
-                    decoration: InputDecoration(labelText: 'Received Amount'),
+                    decoration: InputDecoration(labelText: 'Received Amount (\$)'),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter received amount';

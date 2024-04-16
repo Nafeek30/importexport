@@ -69,7 +69,9 @@ class HorizontalScrollGridState extends State<HorizontalScrollGrid> {
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(Colors.teal),
                       ),
-                      child: const Text('Create Invoice'),
+                      child: const Text('Create Invoice', style: TextStyle(
+                        color: Colors.white,
+                      ),),
                     ),
                   ],
                 ),

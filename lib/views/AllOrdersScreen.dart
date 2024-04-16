@@ -2,8 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:importexport/utility/HorizontalScrollGrid.dart';
-import 'package:importexport/views/AccessControlScreen.dart';
-import 'package:importexport/views/LoginScreen.dart';
 import 'package:importexport/views/UnpaidOrderScreen.dart';
 
 class AllOrdersScreen extends StatefulWidget {
@@ -116,9 +114,7 @@ class AllOrdersScreenState extends State<AllOrdersScreen> {
         const SizedBox(width: 8),
         ElevatedButton(
           onPressed: () {
-            // Function to search based on buyer and seller names
-            // setFalse();
-            reloadOrders();
+            searchOrders();
           },
           style: ButtonStyle(
             backgroundColor: MaterialStateProperty.all(Colors.teal),
@@ -140,7 +136,8 @@ class AllOrdersScreenState extends State<AllOrdersScreen> {
     });
   }
 
-  void reloadOrders() {
+  /// When search button is clicked load the orders that match the search using [HorizontalScrollGrid] class
+  void searchOrders() {
     setState(() {
       loadOrders = false;
     });

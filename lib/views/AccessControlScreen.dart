@@ -26,16 +26,19 @@ class AccessControlScreenState extends State<AccessControlScreen> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.teal[400],
-          title: Text('Access Control'),
+          title: Text('Access Control', style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),),
           bottom: TabBar(
             onTap: (index) {
               // Update the current tab's index when a tab is tapped
               _updateTabIndex(index);
             },
             tabs: [
-              Tab(text: 'Access'),
-              Tab(text: 'Ban/Unban'),
-              Tab(text: 'Permissions'),
+              Tab(child: Text('Access', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),),),
+              Tab(child: Text('Ban/Unban', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),),),
+              Tab(child: Text('Permissions', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),),),
             ],
           ),
         ),

@@ -48,7 +48,7 @@ class BanUnbanTabState extends State<BanUnbanTab> {
                             backgroundColor: Colors.red,
                             elevation: 5,
                           ),
-                          child: const Text('Ban'),
+                          child: const Text('Ban', style: TextStyle(color: Colors.white,),),
                         ),
                         const SizedBox(
                           width: 2,
@@ -61,7 +61,7 @@ class BanUnbanTabState extends State<BanUnbanTab> {
                             backgroundColor: Colors.green,
                             elevation: 5,
                           ),
-                          child: const Text('Unban'),
+                          child: const Text('Unban', style: TextStyle(color: Colors.white,),),
                         ),
                       ],
                     ),
