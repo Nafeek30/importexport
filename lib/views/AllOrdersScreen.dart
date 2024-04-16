@@ -19,7 +19,8 @@ class AllOrdersScreenState extends State<AllOrdersScreen> {
   @override
   void initState() {
     super.initState();
-    getOwnerInfo();
+    getOwnerInfo().then((value) => searchOrders());
+
   }
 
   @override
@@ -98,7 +99,7 @@ class AllOrdersScreenState extends State<AllOrdersScreen> {
           child: TextField(
             controller: sellerController,
             decoration: InputDecoration(
-              labelText: 'Search by Seller Name',
+              labelText: 'Search by Supplier Name',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10.0),
               ),
@@ -119,7 +120,7 @@ class AllOrdersScreenState extends State<AllOrdersScreen> {
           style: ButtonStyle(
             backgroundColor: MaterialStateProperty.all(Colors.teal),
           ),
-          child: const Text('Search'),
+          child: const Text('Search', style: TextStyle(color: Colors.white,),),
         ),
       ],
     );

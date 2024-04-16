@@ -65,7 +65,7 @@ class UnpaidOrderScreenState extends State<UnpaidOrderScreen> {
                   children: [
                     showControls
                         ? Padding(
-                            padding: EdgeInsets.only(right: 20.0),
+                            padding: EdgeInsets.only(right: 4),
                             child: ElevatedButton(
                               onPressed: () => showAddEditDialog(),
                               style: ButtonStyle(
@@ -83,7 +83,7 @@ class UnpaidOrderScreenState extends State<UnpaidOrderScreen> {
                           )
                         : Container(),
                     Padding(
-                      padding: EdgeInsets.only(right: 20.0),
+                      padding: EdgeInsets.only(right: 4),
                       child: ElevatedButton(
                         onPressed: () {
                           Navigator.push(
@@ -108,7 +108,7 @@ class UnpaidOrderScreenState extends State<UnpaidOrderScreen> {
                     ),
                     showControls
                         ? Padding(
-                            padding: EdgeInsets.only(right: 20.0),
+                            padding: EdgeInsets.only(right: 4),
                             child: ElevatedButton(
                               onPressed: () {
                                 Navigator.push(
@@ -133,7 +133,7 @@ class UnpaidOrderScreenState extends State<UnpaidOrderScreen> {
                           )
                         : Container(),
                     Padding(
-                      padding: EdgeInsets.only(right: 20.0),
+                      padding: EdgeInsets.only(right: 4),
                       child: ElevatedButton(
                         onPressed: () {
                           FirebaseAuth.instance.signOut();
