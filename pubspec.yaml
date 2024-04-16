@@ -39,6 +39,12 @@ dependencies:
   firebase_auth: ^4.9.0
   fluttertoast: ^8.2.2
   cloud_firestore: ^4.9.1
+<<<<<<< HEAD
+=======
+  pdf: ^3.10.6
+  open_document: ^1.0.7
+  file_picker: ^6.1.1
+>>>>>>> sprint3
 
 dev_dependencies:
   flutter_test:

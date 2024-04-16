@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:importexport/views/OrderScreen.dart';
+import 'package:importexport/views/UnpaidOrderScreen.dart';
 import 'package:importexport/views/UserSignupScreen.dart';
 
 class WorkspaceSignUpScreen extends StatefulWidget {
@@ -75,8 +75,7 @@ class WorkspaceSignUpScreenState extends State<WorkspaceSignUpScreen> {
                       onPressed: workplaceSignUp,
                       child: Text('Sign Up'),
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.teal[400],
-                        onPrimary: Colors.white,
+                        foregroundColor: Colors.white, backgroundColor: Colors.teal[400],
                       ),
                     ),
                   ),
@@ -146,7 +145,9 @@ class WorkspaceSignUpScreenState extends State<WorkspaceSignUpScreen> {
             'email': emailController.text,
             'phoneNumber': phoneNumberController.text,
             'code': 'ABCD',
-            'approved': true,
+            'approved': 'true',
+            'banned': false,
+            'writePermission': true,
           };
           FirebaseFirestore.instance
               .collection('workspace')
@@ -161,7 +162,7 @@ class WorkspaceSignUpScreenState extends State<WorkspaceSignUpScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => OrderScreen(),
+                  builder: (context) => UnpaidOrderScreen(),
                 ),
               );
               Fluttertoast.showToast(

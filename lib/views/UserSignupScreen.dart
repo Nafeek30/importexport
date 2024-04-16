@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:importexport/views/LoginScreen.dart';
 import 'package:importexport/views/PendingAuthScreen.dart';
 import 'package:importexport/views/WorkspaceSignUpScreen.dart';
 
@@ -26,6 +27,22 @@ class UserSignUpScreenState extends State<UserSignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          color: Colors.black87,
+          icon: Icon(Icons.arrow_back_ios_rounded),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LoginScreen(),
+              ),
+            );
+          },
+        ),
+      ),
       backgroundColor: Colors.white,
       body: Center(
         child: ConstrainedBox(
@@ -62,8 +79,7 @@ class UserSignUpScreenState extends State<UserSignUpScreen> {
                       onPressed: userSignUp,
                       child: Text('Sign Up'),
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.teal[400],
-                        onPrimary: Colors.white,
+                        foregroundColor: Colors.white, backgroundColor: Colors.teal[400],
                       ),
                     ),
                   ),
@@ -82,8 +98,7 @@ class UserSignUpScreenState extends State<UserSignUpScreen> {
                       },
                       child: Text('Create a Workspace'),
                       style: ElevatedButton.styleFrom(
-                        primary: Colors.blueAccent[400],
-                        onPrimary: Colors.white,
+                        foregroundColor: Colors.white, backgroundColor: Colors.blueAccent[400],
                       ),
                     ),
                   ),
@@ -148,7 +163,9 @@ class UserSignUpScreenState extends State<UserSignUpScreen> {
             'email': emailController.text,
             'phoneNumber': phoneNumberController.text,
             'code': workspaceCodeController.text,
-            'approved': false,
+            'approved': 'false',
+            'banned': false,
+            'writePermission': false,
           };
           FirebaseFirestore.instance
               .collection('users')

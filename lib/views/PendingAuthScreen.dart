@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:importexport/views/LoginScreen.dart';
 
 class PendingAuthScreen extends StatefulWidget {
   const PendingAuthScreen({super.key});
@@ -12,6 +13,22 @@ class PendingAuthScreenState extends State<PendingAuthScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          color: Colors.black87,
+          icon: Icon(Icons.arrow_back_ios_rounded),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LoginScreen(),
+              ),
+            );
+          },
+        ),
+      ),
       body: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: 600),
