@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+/// The [AccessTab] section displays content when the [Access] button is clicked on the Access Control screen.
 class AccessTab extends StatefulWidget {
   const AccessTab({super.key});
 

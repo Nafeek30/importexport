@@ -2,10 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:importexport/utility/HorizontalScrollGrid.dart';
+import 'package:importexport/utility/InputDecorations.dart';
 import 'package:importexport/views/AccessControlScreen.dart';
 import 'package:importexport/views/LoginScreen.dart';
 import 'package:importexport/views/AllOrdersScreen.dart';
+import 'package:intl/intl.dart';
 
+/// The [UnpaidOrderScreen] displays the content of the [homeScreen] of the app after an approved user logs in.
 class UnpaidOrderScreen extends StatefulWidget {
   @override
   UnpaidOrderScreenState createState() => UnpaidOrderScreenState();
@@ -32,27 +35,7 @@ class UnpaidOrderScreenState extends State<UnpaidOrderScreen> {
         ? Scaffold(
             appBar: AppBar(
               backgroundColor: Colors.teal[400],
-              leading: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => UnpaidOrderScreen(),
-                    ),
-                  );
-                },
-                child: Container(
-                  child: Center(
-                    child: Text(
-                      'Home',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              leading: Container(),
               title: const Text(
                 "Unpaid Orders",
                 style: TextStyle(
@@ -221,6 +204,8 @@ class UnpaidOrderScreenState extends State<UnpaidOrderScreen> {
     TextEditingController commentsController = TextEditingController();
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
+    /// Function to create an order.
+    /// Once successful, using the [currentTime] value create a changelog that shows the order has been created.
     Future<void> saveOrder() async {
       /// validate form first
       if (!formKey.currentState!.validate()) {
@@ -281,7 +266,7 @@ class UnpaidOrderScreenState extends State<UnpaidOrderScreen> {
                 .doc(docs.docs[0].id)
                 .set({
               'changeText': [
-                '${FirebaseAuth.instance.currentUser!.email} created a new order on ${DateTime.fromMillisecondsSinceEpoch(currentTime).month}/${DateTime.fromMillisecondsSinceEpoch(currentTime).day}/${DateTime.fromMillisecondsSinceEpoch(currentTime).year}.'
+                '${FirebaseAuth.instance.currentUser!.email} created a new order on ${DateFormat.yMMMMEEEEd().format(DateTime.fromMillisecondsSinceEpoch(currentTime))}.'
               ],
             }).then((value) {
               Navigator.of(context).pop();
@@ -297,164 +282,273 @@ class UnpaidOrderScreenState extends State<UnpaidOrderScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius:
+              BorderRadius.all(
+                  Radius.circular(8),
+              ),
+          ),
           title: Text(
             'Add Inventory',
           ),
-          content: Form(
-            key: formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  TextFormField(
-                    controller: buyerNameController,
-                    decoration: InputDecoration(labelText: 'Buyer Name'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter buyer name';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: productNameController,
-                    decoration: InputDecoration(labelText: 'Product Name'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter product name';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: unitPriceController,
-                    decoration: InputDecoration(labelText: 'Unit Price(\$)'),
-                    keyboardType:
-                        TextInputType.numberWithOptions(decimal: true),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter the dollar value of the unit price';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: quantityController,
-                    decoration: InputDecoration(labelText: 'Quantity'),
-                    keyboardType:
-                        TextInputType.numberWithOptions(decimal: true),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter quantity';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: invoiceNumberController,
-                    decoration: InputDecoration(labelText: 'Invoice Number'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter invoice number';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: termsOfPaymentController,
-                    decoration: InputDecoration(labelText: 'Terms of Payment'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter terms of payment';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: supplierNameController,
-                    decoration: InputDecoration(labelText: 'Supplier Name'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter supplier name';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: letterOfCreditNumberController,
-                    decoration:
-                        InputDecoration(labelText: 'Letter of Credit Number'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter LOC number';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: lcValueController,
-                    decoration: InputDecoration(labelText: 'LC Value'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter LC value';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: commissionPercentageController,
-                    decoration:
-                        InputDecoration(labelText: 'Commission Percentage(%)'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter commission percentage';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: otherAmountController,
-                    decoration: InputDecoration(labelText: 'Other Amount (\$)'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter other amount';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: receivedAmountController,
-                    decoration: InputDecoration(labelText: 'Received Amount (\$)'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter received amount';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: commissionNoteController,
-                    decoration: InputDecoration(labelText: 'Commission Note'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter commission note';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: commentsController,
-                    decoration: InputDecoration(labelText: 'Comments'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        setState(() {
-                          commentsController.text = '';
-                        });
-                      }
-                      return null;
-                    },
-                  ),
-                ],
+          content: Container(
+            width: 400,
+            child: Form(
+              key: formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      child: TextFormField(
+                        controller: buyerNameController,
+                        decoration: InputDecoration(
+                          labelText: 'Buyer Name',
+                          border: InputDecorations().regularBorderTextFormField(),
+                          focusedBorder: InputDecorations().focusedBorderTextFormField(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter buyer name';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      child: TextFormField(
+                        controller: productNameController,
+                        decoration: InputDecoration(
+                          labelText: 'Product Name',
+                          border: InputDecorations().regularBorderTextFormField(),
+                          focusedBorder: InputDecorations().focusedBorderTextFormField(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter product name';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      child: TextFormField(
+                        controller: unitPriceController,
+                        decoration: InputDecoration(
+                            labelText: 'Unit Price(\$)',
+                          border: InputDecorations().regularBorderTextFormField(),
+                          focusedBorder: InputDecorations().focusedBorderTextFormField(),
+                        ),
+                        keyboardType:
+                            TextInputType.numberWithOptions(decimal: true),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter the dollar value of the unit price';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      child: TextFormField(
+                        controller: quantityController,
+                        decoration: InputDecoration(
+                            labelText: 'Quantity',
+                          border: InputDecorations().regularBorderTextFormField(),
+                          focusedBorder: InputDecorations().focusedBorderTextFormField(),
+                        ),
+                        keyboardType:
+                            TextInputType.numberWithOptions(decimal: true),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter quantity';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      child: TextFormField(
+                        controller: invoiceNumberController,
+                        decoration: InputDecoration(
+                            labelText: 'Invoice Number',
+                          border: InputDecorations().regularBorderTextFormField(),
+                          focusedBorder: InputDecorations().focusedBorderTextFormField(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter invoice number';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      child: TextFormField(
+                        controller: termsOfPaymentController,
+                        decoration: InputDecoration(
+                            labelText: 'Terms of Payment',
+                          border: InputDecorations().regularBorderTextFormField(),
+                          focusedBorder: InputDecorations().focusedBorderTextFormField(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter terms of payment';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      child: TextFormField(
+                        controller: supplierNameController,
+                        decoration: InputDecoration(
+                            labelText: 'Supplier Name',
+                          border: InputDecorations().regularBorderTextFormField(),
+                          focusedBorder: InputDecorations().focusedBorderTextFormField(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter supplier name';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      child: TextFormField(
+                        controller: letterOfCreditNumberController,
+                        decoration:
+                            InputDecoration(
+                                labelText: 'Letter of Credit Number',
+                              border: InputDecorations().regularBorderTextFormField(),
+                              focusedBorder: InputDecorations().focusedBorderTextFormField(),
+                            ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter LOC number';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      child: TextFormField(
+                        controller: lcValueController,
+                        decoration: InputDecoration(
+                            labelText: 'LC Value',
+                          border: InputDecorations().regularBorderTextFormField(),
+                          focusedBorder: InputDecorations().focusedBorderTextFormField(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter LC value';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      child: TextFormField(
+                        controller: commissionPercentageController,
+                        decoration:
+                            InputDecoration(
+                                labelText: 'Commission Percentage(%)',
+                              border: InputDecorations().regularBorderTextFormField(),
+                              focusedBorder: InputDecorations().focusedBorderTextFormField(),
+                            ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter commission percentage';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      child: TextFormField(
+                        controller: otherAmountController,
+                        decoration: InputDecoration(
+                            labelText: 'Other Amount (\$)',
+                          border: InputDecorations().regularBorderTextFormField(),
+                          focusedBorder: InputDecorations().focusedBorderTextFormField(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter other amount';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      child: TextFormField(
+                        controller: receivedAmountController,
+                        decoration: InputDecoration(
+                            labelText: 'Received Amount (\$)',
+                          border: InputDecorations().regularBorderTextFormField(),
+                          focusedBorder: InputDecorations().focusedBorderTextFormField(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter received amount';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      child: TextFormField(
+                        maxLines: null,
+                        controller: commissionNoteController,
+                        decoration: InputDecoration(
+                            labelText: 'Commission Note',
+                          border: InputDecorations().regularBorderTextFormField(),
+                          focusedBorder: InputDecorations().focusedBorderTextFormField(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter commission note';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      child: TextFormField(
+                        maxLines: null,
+                        controller: commentsController,
+                        decoration: InputDecoration(
+                            labelText: 'Comments',
+                          border: InputDecorations().regularBorderTextFormField(),
+                          focusedBorder: InputDecorations().focusedBorderTextFormField(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            setState(() {
+                              commentsController.text = '';
+                            });
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:importexport/views/UnpaidOrderScreen.dart';
 import 'package:pdf/pdf.dart';
 
+/// The [CreateInvoiceScreen] displays the content when [CreateInvoice] button is clicked on the home screen
 class CreateInvoiceScreen extends StatefulWidget {
   final List selectedOrders;
   const CreateInvoiceScreen({super.key, required this.selectedOrders});

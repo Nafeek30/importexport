@@ -3,6 +3,7 @@ import 'package:importexport/views/AccessTab.dart';
 import 'package:importexport/views/BanUnbanTab.dart';
 import 'package:importexport/views/PermissionsTab.dart';
 
+/// The [AccessControlScreen] screen displays content when the [Control] button is clicked in app.
 class AccessControlScreen extends StatefulWidget {
   @override
   AccessControlScreenState createState() => AccessControlScreenState();

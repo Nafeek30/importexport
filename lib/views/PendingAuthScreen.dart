@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:importexport/views/LoginScreen.dart';
 
+/// This is the screen that shows up once a user signs up to a workspace but hasn't been approved by the workspace owner yet.
 class PendingAuthScreen extends StatefulWidget {
   const PendingAuthScreen({super.key});
 

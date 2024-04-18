@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
@@ -200,10 +201,11 @@ class HorizontalScrollGridState extends State<HorizontalScrollGrid> {
         : const CircularProgressIndicator();
   }
 
-  /// Get all Firestore orders
+  /// Get all Fire store orders using the search feature
   Future<void> fetchData() async {
     print(widget.buyerName);
     print(widget.sellerName);
+    /// Empty search code
     if (widget.buyerName.isEmpty && widget.sellerName.isEmpty) {
       FirebaseFirestore.instance
           .collection('orders')
@@ -250,6 +252,7 @@ class HorizontalScrollGridState extends State<HorizontalScrollGrid> {
           selectedRows = List.generate(items.length, (index) => false);
         });
       });
+      /// Search by buyer name only
     } else if (widget.buyerName.isNotEmpty && widget.sellerName.isEmpty) {
       FirebaseFirestore.instance
           .collection('orders')
@@ -296,6 +299,7 @@ class HorizontalScrollGridState extends State<HorizontalScrollGrid> {
           selectedRows = List.generate(items.length, (index) => false);
         });
       });
+      /// Search by supplier name only
     } else if (widget.buyerName.isEmpty && widget.sellerName.isNotEmpty) {
       FirebaseFirestore.instance
           .collection('orders')
@@ -343,6 +347,7 @@ class HorizontalScrollGridState extends State<HorizontalScrollGrid> {
         });
       });
     } else {
+      /// Search by both buyer and supplier names
       FirebaseFirestore.instance
           .collection('orders')
           .where('buyerName', isEqualTo: widget.buyerName)
@@ -438,6 +443,7 @@ class HorizontalScrollGridState extends State<HorizontalScrollGrid> {
         TextEditingController(text: item['Comments']);
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
+    /// Save the order to [Firebase] and a new log to the changelog for this order.
     Future<void> saveOrder() async {
       /// validate form first
       if (!formKey.currentState!.validate()) {
@@ -480,6 +486,7 @@ class HorizontalScrollGridState extends State<HorizontalScrollGrid> {
       };
 
       try {
+        /// First update [orders] collection, then if successful, update the [changeLog] collection
         await FirebaseFirestore.instance
             .collection('orders')
             .doc(item['docID'])
@@ -487,7 +494,7 @@ class HorizontalScrollGridState extends State<HorizontalScrollGrid> {
             .then((value) async {
           var changeLogData = {
             'changeText': FieldValue.arrayUnion([
-              '${FirebaseAuth.instance.currentUser!.email} updated the order on ${DateTime.fromMillisecondsSinceEpoch(currentTime).month}/${DateTime.fromMillisecondsSinceEpoch(currentTime).day}/${DateTime.fromMillisecondsSinceEpoch(currentTime).year}.'
+              '${FirebaseAuth.instance.currentUser!.email} updated the order on ${DateFormat.yMMMMEEEEd().format(DateTime.now())}.'
             ]),
           };
           await FirebaseFirestore.instance

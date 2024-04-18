@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:importexport/utility/HorizontalScrollGrid.dart';
 import 'package:importexport/views/UnpaidOrderScreen.dart';
 
+/// The [AllOrdersScreen] displays content when the [AllOrders] button is clicked.
 class AllOrdersScreen extends StatefulWidget {
   @override
   AllOrdersScreenState createState() => AllOrdersScreenState();
@@ -19,8 +20,8 @@ class AllOrdersScreenState extends State<AllOrdersScreen> {
   @override
   void initState() {
     super.initState();
-    getOwnerInfo().then((value) => searchOrders());
-
+    // getOwnerInfo().then((value) => searchOrders());
+    getOwnerInfo();
   }
 
   @override
@@ -74,6 +75,7 @@ class AllOrdersScreenState extends State<AllOrdersScreen> {
     );
   }
 
+  /// Contains the widgets to search by buyer name, supplier name and search button.
   Widget _buildSearchAndFilter() {
     return Row(
       children: [

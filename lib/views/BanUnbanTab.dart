@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+/// The [BanUnbanTab] section displays content when the [Ban/Unban] button is clicked on the Access Control screen.
 class BanUnbanTab extends StatefulWidget {
   const BanUnbanTab({super.key});
 

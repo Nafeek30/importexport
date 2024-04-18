@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+/// The [PermissionsTab] section displays content when the [Permissions] button is clicked on the Access Control screen.
 class PermissionsTab extends StatefulWidget {
   const PermissionsTab({super.key});
 
